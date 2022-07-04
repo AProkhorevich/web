@@ -1,17 +1,46 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <Episodes :allEpisodes="this.episodes"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Episodes from './components/Episodes.vue'
 
 export default {
   name: 'App',
+  data() {
+    return {
+      episodes: []
+    }
+  },
   components: {
-    HelloWorld
-  }
+    Episodes
+  },
+  methods: {
+    async getData() {
+      fetch("https://www.breakingbadapi.com/api/episodes")
+        .then(async response => {
+          const data = await response.json();
+          // check for error response
+          if (!response.ok) {
+            // get error message from body or default to response statusText
+            const error = (data && data.message) || response.statusText;
+            return Promise.reject(error);
+          }
+          this.episodes = data;
+          console.log(data);
+        })
+        .catch(error => {
+          this.errorMessage = error;
+          console.error("There was an error!", error);
+        });
+    }
+  },
+  mounted: function() {
+    this.getData();
+  },
+  
 }
+
 </script>
 
 <style>
